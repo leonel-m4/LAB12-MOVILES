@@ -1,20 +1,26 @@
 package com.tecsup.catalogo.ui.lista
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,8 +49,10 @@ fun ListaRoute(
     }
     val viewModel: ListaViewModel = viewModel(factory = factory)
     val estado by viewModel.estado.collectAsStateWithLifecycle()
+    val aviso by viewModel.aviso.collectAsStateWithLifecycle()
     ListaScreen(
         estado = estado,
+        aviso = aviso,
         onProductoClick = onProductoClick,
         onFavoritoClick = { producto -> viewModel.alternarFavorito(producto.id) },
         onReintentar = viewModel::cargarProductos
@@ -64,7 +72,8 @@ fun ListaScreen(
     onProductoClick: (Int) -> Unit,
     onFavoritoClick: (Producto) -> Unit,
     onReintentar: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    aviso: String? = null
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -92,25 +101,45 @@ fun ListaScreen(
             }
 
             is UiState.Exito -> {
-                if (estado.datos.isEmpty()) {
-                    EstadoVacioView(
-                        mensaje = "No hay productos disponibles por ahora.",
-                        modifier = Modifier.padding(paddingValues)
-                    )
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(items = estado.datos, key = { it.id }) { producto ->
-                            ProductoCard(
-                                producto = producto,
-                                onClick = { onProductoClick(producto.id) },
-                                onFavoritoClick = { onFavoritoClick(producto) }
-                            )
+                Column(modifier = Modifier.padding(paddingValues)) {
+                    // Aviso de modo sin conexión con opción de reintentar.
+                    if (aviso != null) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.errorContainer
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = aviso,
+                                    modifier = Modifier.weight(1f),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                                TextButton(onClick = onReintentar) {
+                                    Text(text = "Reintentar")
+                                }
+                            }
+                        }
+                    }
+
+                    if (estado.datos.isEmpty()) {
+                        EstadoVacioView(mensaje = "No hay productos disponibles por ahora.")
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(items = estado.datos, key = { it.id }) { producto ->
+                                ProductoCard(
+                                    producto = producto,
+                                    onClick = { onProductoClick(producto.id) },
+                                    onFavoritoClick = { onFavoritoClick(producto) }
+                                )
+                            }
                         }
                     }
                 }

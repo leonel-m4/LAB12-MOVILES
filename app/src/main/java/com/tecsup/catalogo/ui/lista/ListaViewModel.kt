@@ -8,6 +8,7 @@ import com.tecsup.catalogo.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -24,6 +25,9 @@ class ListaViewModel(
 
     private val _cargando = MutableStateFlow(true)
     private val _error = MutableStateFlow<String?>(null)
+
+    private val _aviso = MutableStateFlow<String?>(null)
+    val aviso: StateFlow<String?> = _aviso.asStateFlow()
 
     val estado: StateFlow<UiState<List<Producto>>> =
         combine(repository.items, _cargando, _error) { productos, cargando, error ->
@@ -48,9 +52,19 @@ class ListaViewModel(
         viewModelScope.launch {
             _cargando.value = true
             _error.value = null
-            repository.refrescar().onFailure { fallo ->
-                _error.value = fallo.message ?: "No se pudo conectar con el servidor."
-            }
+            repository.refrescar()
+                .onSuccess {
+                    _aviso.value = null
+                }
+                .onFailure { fallo ->
+                    if (repository.cantidadGuardada() > 0) {
+                        // Hay caché en Room: se sigue mostrando la lista con un aviso.
+                        _aviso.value = "Sin conexión: mostrando datos guardados"
+                    } else {
+                        // Sin caché y sin internet: se muestra el error.
+                        _error.value = fallo.message ?: "No se pudo conectar con el servidor."
+                    }
+                }
             _cargando.value = false
         }
     }
