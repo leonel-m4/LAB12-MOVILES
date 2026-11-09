@@ -4,13 +4,75 @@ Aplicación Android en Kotlin + Jetpack Compose para consultar **smartphones** d
 [DummyJSON](https://dummyjson.com), guardar favoritos, funcionar sin conexión,
 iniciar sesión con Firebase y mostrar un panel de administración.
 
-> **Estado actual:** Leonel completó los hitos **H1–H6** (proyecto base,
-> estructura inicial, lista con datos de prueba, Retrofit y lista conectada a la
-> API). El segundo integrante debe ejecutar las **correcciones de la sección 4**
-> y luego los hitos **H7–H16** de la sección 5.
+> **Estado actual (08/11/2026):**
+> - **Leonel:** H1–H6 + documentación (8 commits).
+> - **Karim:** correcciones de estructura + H7–H11 (6 commits).
+> - **Pendiente:** H12–H16, Fase 2 (`mejora-ia`) y entrega final.
 >
-> Este README es la guía de trabajo. En H16 se convierte en el README final de la
-> entrega: se agregan las capturas y se completa el reparto de tareas.
+> La app ya compila y funciona: lista desde Room, detalle, favoritos y modo sin
+> conexión. Este README es la guía de trabajo. En H16 se convierte en el README
+> final de la entrega: se agregan las capturas y se completa el reparto de tareas.
+
+---
+
+## 0. Pendientes para Karim (empezar aquí)
+
+### Código: H12–H16
+
+- [ ] **H12 — Configurar Firebase**
+  - Crear el proyecto `CatalogoApp Tecsup` (ID sugerido: `catalogoapp-tecsup`).
+  - Registrar la app Android con el paquete **`com.tecsup.catalogo`**.
+  - Descargar `google-services.json` y colocarlo en `app/` (no commitearlo).
+  - Agregar plugin de Google Services y dependencias de Auth, Firestore y
+    `kotlinx-coroutines-play-services`.
+- [ ] **H13 — Login con Firebase Auth**
+  - `FirebaseAuthRepository` con `iniciarSesion`, `sesionActual` y `cerrarSesion`.
+  - `LoginScreen`, `LoginViewModel` y factory en `ui/login/`.
+  - Sesión persistente y botón **Cerrar sesión**.
+  - **No programar registro**: los usuarios los crea el docente.
+  - Rol desde Firestore: `usuarios/{uid}` → `rol: "admin"` o `"usuario"`.
+- [ ] **H14 — Roles y panel Admin**
+  - `AdminScreen` + `AdminViewModel` en `ui/admin/`.
+  - Mostrar **total guardado** y **total de favoritos**.
+  - Botones **Sincronizar** y **Limpiar caché**.
+  - Pestaña Admin visible solo para `Rol.ADMIN`; proteger la ruta.
+- [ ] **H15 — Notificación local**
+  - `NotificadorAndroid` con canal `catalogo_canal`.
+  - Permiso `POST_NOTIFICATIONS` en el manifest y solicitud en Android 13+.
+  - Notificación **al terminar de sincronizar**: «Se guardaron N elementos».
+  - Al tocarla debe abrir la app; si se niega el permiso, no debe crashear.
+- [ ] **H16 — README final**
+  - Capturas de login, lista, detalle, favoritos, Admin y notificación.
+  - Reparto de tareas real y cómo crear los usuarios de prueba.
+
+### Fase 2 (`mejora-ia`)
+
+- [ ] Al menos **3 commits** en `mejora-ia`.
+- [ ] **R12:** mínimo **3 pruebas unitarias** de `ListaViewModel` con repositorio
+  falso y `Notificador` falso.
+- [ ] **R13:** `PROMPTS.md` con las consultas a IA.
+- [ ] Pull Request de `mejora-ia` hacia `main`.
+
+> La rama `mejora-ia` ya existe en GitHub, pero está al mismo commit que `main`
+> (`73f7a2b`). Termina primero H12–H16 en `main`; después actualízala con
+> `git switch mejora-ia && git merge main` antes de empezar la Fase 2.
+
+### Pruebas y entrega
+
+- [ ] Ejecutar **PA-01 a PA-14**, sobre todo login, roles, Admin, notificación y
+  modo avión.
+- [ ] Tag `v1.0` y APK debug adjunto en el Release de GitHub.
+- [ ] Repositorio privado con el docente como colaborador.
+- [ ] Renombrar el repo a `lab-integrador-gXX-apellido1-apellido2`.
+- [ ] Verificar que no se suban `google-services.json`, claves ni contraseñas.
+- [ ] Clean + Rebuild antes del APK final.
+
+### Datos que faltan confirmar
+
+- Número de grupo y apellidos para el nombre del repositorio.
+- Usuario de GitHub del docente.
+- Correos de los usuarios de prueba (`admin` y `usuario`).
+- Crear en Firestore la colección `usuarios` con el campo `rol` de cada usuario.
 
 ---
 
@@ -156,11 +218,12 @@ Reglas MVVM que se revisan en la rúbrica:
 
 ---
 
-## 4. Correcciones obligatorias antes de H7
+## 4. Correcciones de estructura (ya aplicadas ✅)
 
-El código de H1–H6 funciona, pero todavía no cumple al 100 % la estructura y los
-nombres de contrato del PDF. **Haz estas correcciones en un solo commit** antes
-de empezar H7. El proyecto debe seguir compilando al terminar.
+Karim aplicó estas correcciones en el commit `f3b6e0a`
+(`refactor: alinear estructura y contratos con el PDF`). Se dejan como
+referencia; **no hay que repetirlas**. El código de H1–H6 ya cumple la estructura
+y los contratos del PDF.
 
 ### 4.1 Mover archivos a la ruta obligatoria
 
@@ -301,7 +364,7 @@ class ListaViewModelFactory(
    categoria, stock, imagen, rating, favorito). Solo cambia su paquete a
    `domain.model`.
 
-### 4.4 Verificación y commit
+### 4.4 Verificación y commit (hecho ✅)
 
 ```bash
 .\gradlew.bat assembleDebug
@@ -310,7 +373,7 @@ git commit -m "refactor: alinear estructura y contratos con el PDF"
 git push
 ```
 
-Criterios de aceptación:
+Criterios de aceptación (cumplidos):
 
 - El proyecto compila.
 - La app sigue mostrando los 16 smartphones.
@@ -320,7 +383,22 @@ Criterios de aceptación:
 
 ---
 
-## 5. Hitos pendientes (H7–H16)
+## 5. Hitos H7–H16
+
+### Estado de los hitos
+
+| Hito | Estado |
+|---|---|
+| H7 — Pantalla de detalle | ✅ Hecho por Karim |
+| H8 — Base de datos Room | ✅ Hecho por Karim |
+| H9 — Room como fuente de verdad | ✅ Hecho por Karim |
+| H10 — Favoritos | ✅ Hecho por Karim |
+| H11 — Modo sin conexión | ✅ Hecho por Karim |
+| **H12 — Configurar Firebase** | ⏳ **Pendiente** |
+| **H13 — Login con Firebase Auth** | ⏳ **Pendiente** |
+| **H14 — Roles y panel Admin** | ⏳ **Pendiente** |
+| **H15 — Notificación local** | ⏳ **Pendiente** |
+| **H16 — README final** | ⏳ **Pendiente** |
 
 Reglas para todos los hitos:
 
@@ -1156,12 +1234,12 @@ contraseñas ni claves en este archivo.**
 
 | Dato | Valor |
 |---|---|
-| Nombre del segundo integrante | _pendiente_ |
-| Usuario de GitHub del segundo integrante | _pendiente_ |
+| Nombre del segundo integrante | Karim Sovero |
+| Usuario de GitHub del segundo integrante | `karimSOVC` |
 | Número de grupo | _pendiente_ |
 | Apellidos para el nombre del repositorio | _pendiente_ |
 | Usuario de GitHub del docente | _pendiente_ |
-| Proyecto de Firebase | _pendiente_ |
+| Proyecto de Firebase | `CatalogoApp Tecsup` (ID sugerido: `catalogoapp-tecsup`) |
 | Correos de los usuarios de prueba | _pendiente_ |
 
 ---
@@ -1170,8 +1248,8 @@ contraseñas ni claves en este archivo.**
 
 | Integrante | Hitos | Commits |
 |---|---|---|
-| Leonel | H1–H6 + guía inicial | 7 |
-| Compañero | Correcciones de estructura + H7–H16 | 11 |
+| Leonel | H1–H6 + README/guía | 8 |
+| Karim | Correcciones + H7–H11 (hechos) + H12–H16 (pendientes) | 6 hechos; 11 al terminar |
 
 > Actualiza esta tabla en H16 con los nombres reales y verifica que coincida con
 > `git shortlog -sn`.
