@@ -31,13 +31,19 @@ class ListaViewModel(
     private val _aviso = MutableStateFlow<String?>(null)
     val aviso: StateFlow<String?> = _aviso.asStateFlow()
 
+    private val _busqueda = MutableStateFlow("")
+    val busqueda: StateFlow<String> = _busqueda.asStateFlow()
+
     val estado: StateFlow<UiState<List<Producto>>> =
-        combine(repository.items, _cargando, _error) { productos, cargando, error ->
+        combine(repository.items, _cargando, _error, _busqueda) { productos, cargando, error, texto ->
             when {
                 // Si Room ya tiene datos, se muestran sin esperar a la API.
                 cargando && productos.isEmpty() -> UiState.Cargando
                 error != null && productos.isEmpty() -> UiState.Error(error)
-                else -> UiState.Exito(productos)
+                // Se filtra por nombre sin importar mayúsculas o minúsculas.
+                else -> UiState.Exito(
+                    productos.filter { it.nombre.contains(texto.trim(), ignoreCase = true) }
+                )
             }
         }.stateIn(
             scope = viewModelScope,
@@ -70,6 +76,11 @@ class ListaViewModel(
                 }
             _cargando.value = false
         }
+    }
+
+    /** Actualiza el texto con el que se filtra la lista por nombre. */
+    fun buscar(texto: String) {
+        _busqueda.value = texto
     }
 
     /** Invierte el estado de favorito del producto indicado. */

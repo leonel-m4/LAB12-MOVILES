@@ -11,10 +11,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -55,9 +58,12 @@ fun ListaRoute(
     val viewModel: ListaViewModel = viewModel(factory = factory)
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val aviso by viewModel.aviso.collectAsStateWithLifecycle()
+    val busqueda by viewModel.busqueda.collectAsStateWithLifecycle()
     ListaScreen(
         estado = estado,
         aviso = aviso,
+        busqueda = busqueda,
+        onBuscar = viewModel::buscar,
         onProductoClick = onProductoClick,
         onFavoritoClick = { producto -> viewModel.alternarFavorito(producto.id) },
         onReintentar = viewModel::cargarProductos,
@@ -80,7 +86,9 @@ fun ListaScreen(
     onReintentar: () -> Unit,
     modifier: Modifier = Modifier,
     aviso: String? = null,
-    onCerrarSesion: () -> Unit = {}
+    onCerrarSesion: () -> Unit = {},
+    busqueda: String = "",
+    onBuscar: (String) -> Unit = {}
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -140,8 +148,33 @@ fun ListaScreen(
                         }
                     }
 
+                    // Buscador por nombre.
+                    OutlinedTextField(
+                        value = busqueda,
+                        onValueChange = onBuscar,
+                        placeholder = { Text("Buscar por nombre") },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        trailingIcon = {
+                            if (busqueda.isNotEmpty()) {
+                                IconButton(onClick = { onBuscar("") }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Borrar búsqueda")
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+                    )
+
                     if (estado.datos.isEmpty()) {
-                        EstadoVacioView(mensaje = "No hay productos disponibles por ahora.")
+                        EstadoVacioView(
+                            mensaje = if (busqueda.isBlank()) {
+                                "No hay productos disponibles por ahora."
+                            } else {
+                                "No hay smartphones que coincidan con \"$busqueda\"."
+                            }
+                        )
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
