@@ -14,11 +14,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tecsup.catalogo.CatalogoApp
 import com.tecsup.catalogo.model.Producto
 import com.tecsup.catalogo.model.UiState
 import com.tecsup.catalogo.ui.components.CargandoView
@@ -27,15 +30,20 @@ import com.tecsup.catalogo.ui.components.EstadoVacioView
 import com.tecsup.catalogo.ui.components.ProductoCard
 import com.tecsup.catalogo.ui.theme.CatalogoAppTheme
 import com.tecsup.catalogo.viewmodel.ListaViewModel
+import com.tecsup.catalogo.viewmodel.ListaViewModelFactory
 
 /**
  * Conecta el ViewModel de la lista con la pantalla y recoge su estado.
  */
 @Composable
 fun ListaRoute(
-    viewModel: ListaViewModel = viewModel(),
     onProductoClick: (Int) -> Unit = {}
 ) {
+    val app = LocalContext.current.applicationContext as CatalogoApp
+    val factory = remember(app) {
+        ListaViewModelFactory(app.container.productoRepository)
+    }
+    val viewModel: ListaViewModel = viewModel(factory = factory)
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     ListaScreen(
         estado = estado,
