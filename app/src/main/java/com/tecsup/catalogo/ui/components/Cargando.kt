@@ -22,7 +22,7 @@ import com.tecsup.catalogo.ui.theme.CatalogoAppTheme
  * Indicador que se muestra mientras la pantalla espera datos.
  */
 @Composable
-fun CargandoView(modifier: Modifier = Modifier) {
+fun Cargando(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -47,8 +47,8 @@ fun CargandoView(modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-private fun CargandoViewPreview() {
+private fun CargandoPreview() {
     CatalogoAppTheme {
-        CargandoView()
+        Cargando()
     }
 }

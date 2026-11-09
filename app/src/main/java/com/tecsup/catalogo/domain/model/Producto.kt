@@ -1,4 +1,4 @@
-package com.tecsup.catalogo.model
+package com.tecsup.catalogo.domain.model
 
 /**
  * Producto del catálogo que consumen las pantallas.

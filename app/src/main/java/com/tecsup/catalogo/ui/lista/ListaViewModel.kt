@@ -1,10 +1,10 @@
-package com.tecsup.catalogo.viewmodel
+package com.tecsup.catalogo.ui.lista
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tecsup.catalogo.data.repository.ProductoRepository
-import com.tecsup.catalogo.model.Producto
-import com.tecsup.catalogo.model.UiState
+import com.tecsup.catalogo.domain.model.Producto
+import com.tecsup.catalogo.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +26,7 @@ class ListaViewModel(
     private val _error = MutableStateFlow<String?>(null)
 
     val estado: StateFlow<UiState<List<Producto>>> =
-        combine(repository.observarProductos(), _cargando, _error) { productos, cargando, error ->
+        combine(repository.items, _cargando, _error) { productos, cargando, error ->
             when {
                 cargando -> UiState.Cargando
                 error != null && productos.isEmpty() -> UiState.Error(error)
@@ -47,20 +47,17 @@ class ListaViewModel(
         viewModelScope.launch {
             _cargando.value = true
             _error.value = null
-            repository.refrescarProductos().onFailure { fallo ->
+            repository.refrescar().onFailure { fallo ->
                 _error.value = fallo.message ?: "No se pudo conectar con el servidor."
             }
             _cargando.value = false
         }
     }
 
-    /** Cambia el estado de favorito del producto indicado. */
-    fun cambiarFavorito(id: Int) {
+    /** Invierte el estado de favorito del producto indicado. */
+    fun alternarFavorito(id: Int) {
         viewModelScope.launch {
-            val producto = (estado.value as? UiState.Exito)?.datos
-                ?.firstOrNull { it.id == id }
-                ?: return@launch
-            repository.cambiarFavorito(id, !producto.favorito)
+            repository.alternarFavorito(id)
         }
     }
 }

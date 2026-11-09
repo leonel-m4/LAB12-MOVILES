@@ -1,8 +1,8 @@
 package com.tecsup.catalogo.data.repository
 
+import com.tecsup.catalogo.data.mapper.toProducto
 import com.tecsup.catalogo.data.remote.ApiService
-import com.tecsup.catalogo.data.remote.dto.toProducto
-import com.tecsup.catalogo.model.Producto
+import com.tecsup.catalogo.domain.model.Producto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -22,36 +22,44 @@ class ProductoRepositoryImpl(
     private val productos = MutableStateFlow<List<Producto>>(emptyList())
     private val idsFavoritos = MutableStateFlow<Set<Int>>(emptySet())
 
-    override fun observarProductos(): Flow<List<Producto>> =
+    override val items: Flow<List<Producto>> =
         combine(productos, idsFavoritos) { lista, favoritos ->
             lista.map { producto ->
                 producto.copy(favorito = producto.id in favoritos)
             }
         }
 
-    override fun observarFavoritos(): Flow<List<Producto>> =
-        observarProductos().map { lista ->
+    override val favoritos: Flow<List<Producto>> =
+        items.map { lista ->
             lista.filter { producto -> producto.favorito }
         }
 
-    override suspend fun obtenerProducto(id: Int): Producto? {
-        val productoLocal = productos.value.firstOrNull { it.id == id }
-        if (productoLocal != null) {
-            return productoLocal.copy(favorito = id in idsFavoritos.value)
-        }
-        return runCatching { api.obtenerProducto(id).toProducto() }.getOrNull()
-    }
-
-    override suspend fun refrescarProductos(): Result<Unit> = runCatching {
+    override suspend fun refrescar(): Result<Int> = runCatching {
         val respuesta = api.obtenerSmartphones()
         productos.value = respuesta.products.map { dto -> dto.toProducto() }
+        productos.value.size
     }
 
-    override suspend fun cambiarFavorito(id: Int, favorito: Boolean) {
-        idsFavoritos.value = if (favorito) {
-            idsFavoritos.value + id
-        } else {
+    override suspend fun obtenerDetalle(id: Int): Result<Producto> = runCatching {
+        val productoLocal = productos.value.firstOrNull { it.id == id }
+        val producto = productoLocal ?: api.obtenerProducto(id).toProducto()
+        producto.copy(favorito = id in idsFavoritos.value)
+    }
+
+    override suspend fun alternarFavorito(id: Int) {
+        idsFavoritos.value = if (id in idsFavoritos.value) {
             idsFavoritos.value - id
+        } else {
+            idsFavoritos.value + id
         }
+    }
+
+    override suspend fun cantidadGuardada(): Int = productos.value.size
+
+    override suspend fun cantidadFavoritos(): Int = idsFavoritos.value.size
+
+    override suspend fun limpiarCache() {
+        productos.value = emptyList()
+        idsFavoritos.value = emptySet()
     }
 }

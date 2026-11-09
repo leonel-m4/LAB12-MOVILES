@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.tecsup.catalogo.model.Producto
+import com.tecsup.catalogo.domain.model.Producto
 import com.tecsup.catalogo.ui.theme.CatalogoAppTheme
 import java.util.Locale
 

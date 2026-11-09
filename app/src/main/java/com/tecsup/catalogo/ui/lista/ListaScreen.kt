@@ -1,4 +1,4 @@
-package com.tecsup.catalogo.ui.screens
+package com.tecsup.catalogo.ui.lista
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,15 +22,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tecsup.catalogo.CatalogoApp
-import com.tecsup.catalogo.model.Producto
-import com.tecsup.catalogo.model.UiState
-import com.tecsup.catalogo.ui.components.CargandoView
+import com.tecsup.catalogo.domain.model.Producto
+import com.tecsup.catalogo.ui.UiState
+import com.tecsup.catalogo.ui.components.Cargando
 import com.tecsup.catalogo.ui.components.ErrorView
 import com.tecsup.catalogo.ui.components.EstadoVacioView
 import com.tecsup.catalogo.ui.components.ProductoCard
 import com.tecsup.catalogo.ui.theme.CatalogoAppTheme
-import com.tecsup.catalogo.viewmodel.ListaViewModel
-import com.tecsup.catalogo.viewmodel.ListaViewModelFactory
 
 /**
  * Conecta el ViewModel de la lista con la pantalla y recoge su estado.
@@ -41,14 +39,14 @@ fun ListaRoute(
 ) {
     val app = LocalContext.current.applicationContext as CatalogoApp
     val factory = remember(app) {
-        ListaViewModelFactory(app.container.productoRepository)
+        ListaViewModelFactory(app.container)
     }
     val viewModel: ListaViewModel = viewModel(factory = factory)
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     ListaScreen(
         estado = estado,
         onProductoClick = onProductoClick,
-        onFavoritoClick = { producto -> viewModel.cambiarFavorito(producto.id) },
+        onFavoritoClick = { producto -> viewModel.alternarFavorito(producto.id) },
         onReintentar = viewModel::cargarProductos
     )
 }
@@ -82,7 +80,7 @@ fun ListaScreen(
     ) { paddingValues ->
         when (estado) {
             UiState.Cargando -> {
-                CargandoView(modifier = Modifier.padding(paddingValues))
+                Cargando(modifier = Modifier.padding(paddingValues))
             }
 
             is UiState.Error -> {

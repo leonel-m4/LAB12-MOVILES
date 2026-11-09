@@ -1,6 +1,7 @@
-package com.tecsup.catalogo.data.remote.dto
+package com.tecsup.catalogo.data.mapper
 
-import com.tecsup.catalogo.model.Producto
+import com.tecsup.catalogo.data.remote.dto.ProductoDto
+import com.tecsup.catalogo.domain.model.Producto
 
 /**
  * Convierte la respuesta de la API en el modelo que usan las pantallas.
