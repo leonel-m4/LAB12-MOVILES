@@ -759,6 +759,24 @@ _aviso.value = "Sin conexión: mostrando datos guardados"
 2. Registra una app Android con el paquete **`com.tecsup.catalogo`**.
 3. Descarga `google-services.json` y colócalo en `app/`. **No lo commitees**:
    ya está en `.gitignore`.
+
+> **Consola nueva de Firebase (rediseño de octubre 2026):** la pestaña
+> **Reglas** ya no aparece en la vista de **Datos**. El editor está en
+> **Bases de datos y almacenamiento → Firestore → Seguridad → Reglas**, o
+> directamente en:
+>
+> `https://console.firebase.google.com/project/catalogoapp-e7bc0/firestore/databases/-default-/security/rules`
+>
+> El proyecto de este laboratorio ya tiene `firebase.json`, `firestore.rules` y
+> `.firebaserc`. Para publicar las reglas sin entrar a la consola:
+>
+> ```bash
+> npx -y firebase-tools@latest login
+> npx -y firebase-tools@latest deploy --only firestore:rules --project catalogoapp-e7bc0
+> ```
+>
+> Si `firebase login` pide un código, abre la URL que imprime, inicia sesión con
+> la cuenta dueña del proyecto y pega el código en la terminal.
 4. Agrega el plugin y las dependencias:
 
 ```kotlin
@@ -1162,6 +1180,33 @@ correo: "admin@…"       rol: "admin"
 ```
 
 5. El campo `rol` debe ser exactamente `"admin"` o `"usuario"` (minúsculas).
+
+### 7.2 Reglas de Firestore
+
+Sin estas reglas la app recibe `403 PERMISSION_DENIED` y el login no entra.
+Pégalas en **Firestore → Seguridad → Reglas** (consola nueva) y pulsa
+**Publicar**:
+
+```javascript
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Cada usuario solo puede leer y escribir su propio documento de rol.
+    match /usuarios/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
+```
+
+El archivo `firestore.rules` del repositorio contiene exactamente estas reglas.
+También se pueden publicar con:
+
+```bash
+npx -y firebase-tools@latest deploy --only firestore:rules --project catalogoapp-e7bc0
+```
 
 ---
 
