@@ -9,7 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -41,7 +45,8 @@ import com.tecsup.catalogo.ui.theme.CatalogoAppTheme
  */
 @Composable
 fun ListaRoute(
-    onProductoClick: (Int) -> Unit = {}
+    onProductoClick: (Int) -> Unit = {},
+    onCerrarSesion: () -> Unit = {}
 ) {
     val app = LocalContext.current.applicationContext as CatalogoApp
     val factory = remember(app) {
@@ -55,7 +60,8 @@ fun ListaRoute(
         aviso = aviso,
         onProductoClick = onProductoClick,
         onFavoritoClick = { producto -> viewModel.alternarFavorito(producto.id) },
-        onReintentar = viewModel::cargarProductos
+        onReintentar = viewModel::cargarProductos,
+        onCerrarSesion = onCerrarSesion
     )
 }
 
@@ -73,13 +79,22 @@ fun ListaScreen(
     onFavoritoClick: (Producto) -> Unit,
     onReintentar: () -> Unit,
     modifier: Modifier = Modifier,
-    aviso: String? = null
+    aviso: String? = null,
+    onCerrarSesion: () -> Unit = {}
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = { Text(text = "Catálogo de smartphones") },
+                actions = {
+                    IconButton(onClick = onCerrarSesion) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                            contentDescription = "Cerrar sesión"
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface
