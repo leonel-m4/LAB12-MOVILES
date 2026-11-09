@@ -41,8 +41,9 @@ class ProductoRepositoryImpl(
     }
 
     override suspend fun obtenerDetalle(id: Int): Result<Producto> = runCatching {
-        val productoLocal = productos.value.firstOrNull { it.id == id }
-        val producto = productoLocal ?: api.obtenerProducto(id).toProducto()
+        // El detalle sale del segundo endpoint; si falla, se usa la lista en memoria.
+        val producto = runCatching { api.obtenerProducto(id).toProducto() }.getOrNull()
+            ?: productos.value.first { it.id == id }
         producto.copy(favorito = id in idsFavoritos.value)
     }
 

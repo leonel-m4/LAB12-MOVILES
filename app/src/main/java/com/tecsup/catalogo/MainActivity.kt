@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.tecsup.catalogo.ui.lista.ListaRoute
+import com.tecsup.catalogo.ui.navigation.AppNav
 import com.tecsup.catalogo.ui.theme.CatalogoAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ListaRoute()
+                    AppNav()
                 }
             }
         }
