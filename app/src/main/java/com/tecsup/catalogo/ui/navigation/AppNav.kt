@@ -4,12 +4,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -25,6 +27,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.catalogo.CatalogoApp
+import com.tecsup.catalogo.domain.model.Rol
+import com.tecsup.catalogo.ui.admin.AdminRoute
 import com.tecsup.catalogo.ui.detalle.DetalleRoute
 import com.tecsup.catalogo.ui.favoritos.FavoritosRoute
 import com.tecsup.catalogo.ui.lista.ListaRoute
@@ -52,7 +56,10 @@ fun AppNav() {
             onIngresar = loginViewModel::iniciarSesion
         )
     } else {
-        Catalogo(onCerrarSesion = loginViewModel::cerrarSesion)
+        Catalogo(
+            esAdmin = sesion?.rol == Rol.ADMIN,
+            onCerrarSesion = loginViewModel::cerrarSesion
+        )
     }
 }
 
@@ -60,7 +67,10 @@ fun AppNav() {
  * Pantallas que se ven después de iniciar sesión.
  */
 @Composable
-private fun Catalogo(onCerrarSesion: () -> Unit) {
+private fun Catalogo(
+    esAdmin: Boolean,
+    onCerrarSesion: () -> Unit
+) {
     val navController = rememberNavController()
     val entradaActual by navController.currentBackStackEntryAsState()
     val rutaActual = entradaActual?.destination?.route
@@ -68,7 +78,7 @@ private fun Catalogo(onCerrarSesion: () -> Unit) {
     Scaffold(
         bottomBar = {
             // La barra solo se muestra en las pantallas principales.
-            if (rutaActual == "lista" || rutaActual == "favoritos") {
+            if (rutaActual == "lista" || rutaActual == "favoritos" || rutaActual == "admin") {
                 NavigationBar {
                     NavigationBarItem(
                         selected = rutaActual == "lista",
@@ -82,6 +92,15 @@ private fun Catalogo(onCerrarSesion: () -> Unit) {
                         icon = { Icon(Icons.Default.Favorite, contentDescription = null) },
                         label = { Text("Favoritos") }
                     )
+                    // La pestaña Admin solo la ve el rol ADMIN.
+                    if (esAdmin) {
+                        NavigationBarItem(
+                            selected = rutaActual == "admin",
+                            onClick = { irA(navController, "admin") },
+                            icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                            label = { Text("Admin") }
+                        )
+                    }
                 }
             }
         }
@@ -102,6 +121,19 @@ private fun Catalogo(onCerrarSesion: () -> Unit) {
                 FavoritosRoute(onProductoClick = { id ->
                     navController.navigate("detalle/$id")
                 })
+            }
+
+            composable("admin") {
+                if (esAdmin) {
+                    AdminRoute()
+                } else {
+                    // Ruta protegida: un USUARIO vuelve al catálogo.
+                    LaunchedEffect(Unit) {
+                        navController.navigate("lista") {
+                            popUpTo("lista") { inclusive = true }
+                        }
+                    }
+                }
             }
 
             composable(
