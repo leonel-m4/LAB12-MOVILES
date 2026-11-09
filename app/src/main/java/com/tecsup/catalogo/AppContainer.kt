@@ -9,6 +9,8 @@ import com.tecsup.catalogo.data.local.AppDatabase
 import com.tecsup.catalogo.data.remote.RetrofitClient
 import com.tecsup.catalogo.data.repository.ProductoRepository
 import com.tecsup.catalogo.data.repository.ProductoRepositoryImpl
+import com.tecsup.catalogo.notification.Notificador
+import com.tecsup.catalogo.notification.NotificadorAndroid
 
 /**
  * Contenedor de dependencias manual de la aplicación.
@@ -16,12 +18,14 @@ import com.tecsup.catalogo.data.repository.ProductoRepositoryImpl
  * Crea la API, la base de datos, Firebase y los repositorios para que los
  * ViewModels no construyan nada ni conozcan implementaciones concretas.
  */
-class AppContainer(context: Context) {
+class AppContainer(private val context: Context) {
     private val db = AppDatabase.obtener(context)
     private val api = RetrofitClient.api
 
     val firebaseAuth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     val firestore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
+
+    val notificador: Notificador by lazy { NotificadorAndroid(context.applicationContext) }
 
     val authRepository: AuthRepository by lazy {
         FirebaseAuthRepository(firebaseAuth, firestore)

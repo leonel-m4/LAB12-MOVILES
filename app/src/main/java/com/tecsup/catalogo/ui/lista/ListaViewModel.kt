@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tecsup.catalogo.data.repository.ProductoRepository
 import com.tecsup.catalogo.domain.model.Producto
+import com.tecsup.catalogo.notification.Notificador
 import com.tecsup.catalogo.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,7 +21,8 @@ import kotlinx.coroutines.launch
  * y error para exponer un único [UiState] a la pantalla.
  */
 class ListaViewModel(
-    private val repository: ProductoRepository
+    private val repository: ProductoRepository,
+    private val notificador: Notificador
 ) : ViewModel() {
 
     private val _cargando = MutableStateFlow(true)
@@ -53,8 +55,9 @@ class ListaViewModel(
             _cargando.value = true
             _error.value = null
             repository.refrescar()
-                .onSuccess {
+                .onSuccess { n ->
                     _aviso.value = null
+                    notificador.mostrar("Datos actualizados", "Se guardaron $n elementos")
                 }
                 .onFailure { fallo ->
                     if (repository.cantidadGuardada() > 0) {

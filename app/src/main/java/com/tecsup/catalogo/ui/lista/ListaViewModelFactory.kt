@@ -12,7 +12,7 @@ class ListaViewModelFactory(
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T = when (modelClass) {
-        ListaViewModel::class.java -> ListaViewModel(container.productoRepository) as T
+        ListaViewModel::class.java -> ListaViewModel(container.productoRepository, container.notificador) as T
         else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
     }
 }
