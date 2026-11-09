@@ -28,7 +28,8 @@ class ListaViewModel(
     val estado: StateFlow<UiState<List<Producto>>> =
         combine(repository.items, _cargando, _error) { productos, cargando, error ->
             when {
-                cargando -> UiState.Cargando
+                // Si Room ya tiene datos, se muestran sin esperar a la API.
+                cargando && productos.isEmpty() -> UiState.Cargando
                 error != null && productos.isEmpty() -> UiState.Error(error)
                 else -> UiState.Exito(productos)
             }

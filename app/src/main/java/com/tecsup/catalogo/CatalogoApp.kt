@@ -10,5 +10,5 @@ import android.app.Application
  */
 class CatalogoApp : Application() {
 
-    val container: AppContainer by lazy { AppContainer() }
+    val container: AppContainer by lazy { AppContainer(this) }
 }
