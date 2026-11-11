@@ -43,7 +43,8 @@ fun ProductoDto.toEntity(favorito: Boolean = false): ProductoEntity = ProductoEn
 fun ProductoEntity.toModelo(): Producto = Producto(
     id = id,
     nombre = nombre,
-    descripcion = descripcion,
+    // Los textos de la API llegan en inglés; se muestran en español.
+    descripcion = descripcionEnEspanol(id, descripcion),
     precio = precio,
     marca = marca,
     categoria = categoria,
@@ -58,9 +59,9 @@ fun ProductoEntity.toModelo(): Producto = Producto(
     ancho = ancho,
     alto = alto,
     grosor = grosor,
-    garantia = garantia,
-    envio = envio,
+    garantia = traducirGarantia(garantia),
+    envio = traducirEnvio(envio),
     disponibilidad = disponibilidad,
-    devolucion = devolucion,
+    devolucion = traducirDevolucion(devolucion),
     pedidoMinimo = pedidoMinimo
 )

@@ -1,6 +1,5 @@
 package com.tecsup.catalogo.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -49,10 +48,12 @@ private val EsquemaOscuro = darkColorScheme(
  *
  * Usa siempre los colores propios de la app (no los colores del fondo de
  * pantalla del celular), así se ve igual en todos los dispositivos.
+ * Por defecto es el tema claro con fondo blanco, aunque el celular esté en
+ * modo oscuro.
  */
 @Composable
 fun CatalogoAppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
     MaterialTheme(

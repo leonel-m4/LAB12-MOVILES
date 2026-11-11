@@ -57,6 +57,7 @@ import com.tecsup.catalogo.ui.UiState
 import com.tecsup.catalogo.ui.components.Cargando
 import com.tecsup.catalogo.ui.components.ErrorView
 import com.tecsup.catalogo.ui.components.Etiqueta
+import com.tecsup.catalogo.ui.components.PrecioConDescuento
 import com.tecsup.catalogo.ui.components.EtiquetaStock
 import com.tecsup.catalogo.ui.components.Rating
 import com.tecsup.catalogo.ui.components.coloresBarra
@@ -168,10 +169,11 @@ fun DetalleScreen(
                             style = MaterialTheme.typography.headlineSmall
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = formatoPrecio(producto.precio),
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = MaterialTheme.colorScheme.primary
+                        // Precio con el descuento al lado.
+                        PrecioConDescuento(
+                            precio = producto.precio,
+                            descuento = producto.descuento,
+                            grande = true
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -274,8 +276,6 @@ private fun TarjetaCaracteristicas(producto: Producto) {
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(4.dp))
-            FilaCaracteristica("Disponibilidad", traducirDisponibilidad(producto.disponibilidad))
-            FilaCaracteristica("Descuento", "${numero(producto.descuento)} %")
             FilaCaracteristica("Garantía", producto.garantia)
             FilaCaracteristica("Envío", producto.envio)
             FilaCaracteristica("Devolución", producto.devolucion)
@@ -317,14 +317,6 @@ private fun FilaCaracteristica(etiqueta: String, valor: String, ultima: Boolean 
     if (!ultima) HorizontalDivider()
 }
 
-/** La API manda la disponibilidad en inglés; se muestra en español. */
-private fun traducirDisponibilidad(texto: String): String = when (texto) {
-    "In Stock" -> "En stock"
-    "Low Stock" -> "Pocas unidades"
-    "Out of Stock" -> "Agotado"
-    else -> texto
-}
-
 /** Muestra un número sin decimales de sobra: 2.0 -> "2", 5.29 -> "5.29". */
 private fun numero(valor: Double): String =
     if (valor % 1.0 == 0.0) valor.toInt().toString()
@@ -358,7 +350,7 @@ private fun TarjetaOtro(producto: Producto, onClick: () -> Unit) {
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = formatoPrecio(producto.precio),
+                text = formatoPrecio(producto.precio * (1 - producto.descuento / 100)),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary

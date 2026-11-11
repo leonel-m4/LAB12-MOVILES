@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import java.util.Locale
 
@@ -110,3 +111,44 @@ fun coloresBarra(): TopAppBarColors = TopAppBarDefaults.topAppBarColors(
     navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
 )
+
+/**
+ * Precio final con el descuento al lado: precio con descuento, precio
+ * original tachado y una etiqueta roja con el porcentaje.
+ *
+ * @param grande true en el detalle (texto más grande), false en la lista.
+ */
+@Composable
+fun PrecioConDescuento(
+    precio: Double,
+    descuento: Double,
+    grande: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val precioFinal = precio * (1 - descuento / 100)
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = formatoPrecio(if (descuento > 0) precioFinal else precio),
+            style = if (grande) MaterialTheme.typography.headlineMedium
+            else MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        if (descuento > 0) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = formatoPrecio(precio),
+                style = if (grande) MaterialTheme.typography.bodyLarge
+                else MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textDecoration = TextDecoration.LineThrough
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Etiqueta(
+                texto = "-${Math.round(descuento)}%",
+                fondo = MaterialTheme.colorScheme.error,
+                colorTexto = MaterialTheme.colorScheme.onError
+            )
+        }
+    }
+}

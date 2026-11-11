@@ -152,6 +152,25 @@ se aceptó, qué se cambió o rechazó y qué se aprendió.
   datos afuera; y que usar imágenes de otras empresas en un repositorio
   público tiene problemas de derechos de autor.
 
+## Consulta 9
+- Fecha: 11/11/2026
+- Herramienta: Claude Code
+- Prompt: «No se entiende la descripción, ponla en español. ¿Por qué dice "En
+  stock" si ya sale el stock? El descuento debe salir al lado del precio.»
+- Qué respondió (resumen): explicó que DummyJSON solo manda los textos en
+  inglés, así que propuso una tabla de traducciones en la capa de datos
+  (`Traducciones.kt`) para la descripción, la garantía, el envío y la
+  devolución. Quitó «Disponibilidad» y «Descuento» de las características por
+  repetir información, y movió el descuento junto al precio. También notó que
+  la app se veía oscura porque el celular estaba en modo oscuro.
+- Qué usamos / qué cambiamos y por qué: las traducciones se aplican en el
+  mapper (`toModelo`), así la pantalla no traduce nada y Room sigue guardando
+  lo que llega de la API. El precio ahora muestra el precio con descuento, el
+  precio original tachado y una etiqueta «-N%», en la lista y en el detalle.
+  El tema quedó siempre en modo claro, con fondo blanco.
+- Qué aprendimos: no repetir el mismo dato en dos lugares de la pantalla, y que
+  traducir en el mapper mantiene a las pantallas sin lógica.
+
 ---
 
 ## Resumen

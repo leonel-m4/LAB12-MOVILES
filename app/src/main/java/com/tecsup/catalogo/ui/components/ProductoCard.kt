@@ -89,11 +89,10 @@ fun ProductoCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = formatoPrecio(producto.precio),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                PrecioConDescuento(
+                    precio = producto.precio,
+                    descuento = producto.descuento,
+                    grande = false
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 // Rating y stock para decidir rápido sin abrir el detalle.
