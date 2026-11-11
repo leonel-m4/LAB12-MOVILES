@@ -29,6 +29,10 @@ class AdminViewModel(
     private val _estado = MutableStateFlow<UiState<ResumenAdmin>>(UiState.Cargando)
     val estado: StateFlow<UiState<ResumenAdmin>> = _estado.asStateFlow()
 
+    // Mensaje corto para avisar el resultado de una acción (Snackbar).
+    private val _mensaje = MutableStateFlow<String?>(null)
+    val mensaje: StateFlow<String?> = _mensaje.asStateFlow()
+
     init {
         cargarTotales()
     }
@@ -50,7 +54,10 @@ class AdminViewModel(
         viewModelScope.launch {
             _estado.value = UiState.Cargando
             repository.refrescar()
-                .onSuccess { cargarTotales() }
+                .onSuccess { n ->
+                    cargarTotales()
+                    _mensaje.value = "Sincronizado: se guardaron $n productos"
+                }
                 .onFailure { fallo ->
                     _estado.value = UiState.Error(
                         fallo.message ?: "No se pudo sincronizar."
@@ -64,6 +71,12 @@ class AdminViewModel(
         viewModelScope.launch {
             repository.limpiarCache()
             cargarTotales()
+            _mensaje.value = "Caché limpiada"
         }
+    }
+
+    /** La pantalla avisa que ya mostró el mensaje. */
+    fun mensajeMostrado() {
+        _mensaje.value = null
     }
 }

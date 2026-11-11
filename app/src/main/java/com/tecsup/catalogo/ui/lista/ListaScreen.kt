@@ -4,29 +4,37 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -41,7 +49,9 @@ import com.tecsup.catalogo.ui.components.Cargando
 import com.tecsup.catalogo.ui.components.ErrorView
 import com.tecsup.catalogo.ui.components.EstadoVacioView
 import com.tecsup.catalogo.ui.components.ProductoCard
+import com.tecsup.catalogo.ui.components.coloresBarra
 import com.tecsup.catalogo.ui.theme.CatalogoAppTheme
+import kotlinx.coroutines.launch
 
 /**
  * Conecta el ViewModel de la lista con la pantalla y recoge su estado.
@@ -59,10 +69,12 @@ fun ListaRoute(
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val aviso by viewModel.aviso.collectAsStateWithLifecycle()
     val busqueda by viewModel.busqueda.collectAsStateWithLifecycle()
+    val sincronizando by viewModel.sincronizando.collectAsStateWithLifecycle()
     ListaScreen(
         estado = estado,
         aviso = aviso,
         busqueda = busqueda,
+        sincronizando = sincronizando,
         onBuscar = viewModel::buscar,
         onProductoClick = onProductoClick,
         onFavoritoClick = { producto -> viewModel.alternarFavorito(producto.id) },
@@ -88,13 +100,28 @@ fun ListaScreen(
     aviso: String? = null,
     onCerrarSesion: () -> Unit = {},
     busqueda: String = "",
-    onBuscar: (String) -> Unit = {}
+    onBuscar: (String) -> Unit = {},
+    sincronizando: Boolean = false
 ) {
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
-                title = { Text(text = "Catálogo de smartphones") },
+                title = {
+                    Column {
+                        Text(text = "Catálogo de smartphones")
+                        if (estado is UiState.Exito) {
+                            Text(
+                                text = "${estado.datos.size} productos",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                },
                 actions = {
                     IconButton(onClick = onCerrarSesion) {
                         Icon(
@@ -103,10 +130,7 @@ fun ListaScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
-                )
+                colors = coloresBarra()
             )
         }
     ) { paddingValues ->
@@ -135,6 +159,12 @@ fun ListaScreen(
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = aviso,
                                     modifier = Modifier.weight(1f),
@@ -162,31 +192,51 @@ fun ListaScreen(
                             }
                         },
                         singleLine = true,
+                        shape = RoundedCornerShape(50),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+                            .padding(start = 16.dp, end = 16.dp, top = 12.dp)
                     )
 
-                    if (estado.datos.isEmpty()) {
-                        EstadoVacioView(
-                            mensaje = if (busqueda.isBlank()) {
-                                "No hay productos disponibles por ahora."
-                            } else {
-                                "No hay smartphones que coincidan con \"$busqueda\"."
-                            }
-                        )
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(items = estado.datos, key = { it.id }) { producto ->
-                                ProductoCard(
-                                    producto = producto,
-                                    onClick = { onProductoClick(producto.id) },
-                                    onFavoritoClick = { onFavoritoClick(producto) }
-                                )
+                    // Deslizar hacia abajo vuelve a sincronizar con la API.
+                    PullToRefreshBox(
+                        isRefreshing = sincronizando,
+                        onRefresh = onReintentar,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        if (estado.datos.isEmpty()) {
+                            EstadoVacioView(
+                                mensaje = if (busqueda.isBlank()) {
+                                    "No hay productos disponibles por ahora.\nDesliza hacia abajo para sincronizar."
+                                } else {
+                                    "No hay smartphones que coincidan con \"$busqueda\"."
+                                }
+                            )
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                items(items = estado.datos, key = { it.id }) { producto ->
+                                    ProductoCard(
+                                        producto = producto,
+                                        onClick = { onProductoClick(producto.id) },
+                                        onFavoritoClick = {
+                                            onFavoritoClick(producto)
+                                            // Mensaje corto para confirmar la acción.
+                                            val texto = if (producto.favorito) {
+                                                "Quitado de favoritos"
+                                            } else {
+                                                "Agregado a favoritos"
+                                            }
+                                            scope.launch {
+                                                snackbar.currentSnackbarData?.dismiss()
+                                                snackbar.showSnackbar(texto, duration = SnackbarDuration.Short)
+                                            }
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
@@ -222,7 +272,7 @@ private fun ListaScreenPreview() {
                         precio = 699.99,
                         marca = "Samsung",
                         categoria = "smartphones",
-                        stock = 19,
+                        stock = 5,
                         imagen = "",
                         rating = 3.06
                     )

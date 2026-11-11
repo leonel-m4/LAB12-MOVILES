@@ -56,7 +56,7 @@ fun ProductoCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -66,10 +66,10 @@ fun ProductoCard(
                 model = producto.imagen,
                 contentDescription = producto.nombre,
                 modifier = Modifier
-                    .size(88.dp)
+                    .size(96.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -87,11 +87,18 @@ fun ProductoCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "S/ ${String.format(Locale.US, "%.2f", producto.precio)}",
+                    text = formatoPrecio(producto.precio),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
+                Spacer(modifier = Modifier.height(6.dp))
+                // Rating y stock para decidir rápido sin abrir el detalle.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Rating(producto.rating)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    EtiquetaStock(producto.stock)
+                }
             }
             IconButton(onClick = onFavoritoClick) {
                 Icon(

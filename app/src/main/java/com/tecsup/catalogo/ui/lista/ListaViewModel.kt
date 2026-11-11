@@ -28,6 +28,9 @@ class ListaViewModel(
     private val _cargando = MutableStateFlow(true)
     private val _error = MutableStateFlow<String?>(null)
 
+    /** true mientras se descarga de la API (para el gesto de deslizar). */
+    val sincronizando: StateFlow<Boolean> = _cargando.asStateFlow()
+
     private val _aviso = MutableStateFlow<String?>(null)
     val aviso: StateFlow<String?> = _aviso.asStateFlow()
 

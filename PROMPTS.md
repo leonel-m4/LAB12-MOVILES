@@ -88,6 +88,29 @@ se aceptó, qué se cambió o rechazó y qué se aprendió.
   Firebase (correo repetido, contraseña débil) se pueden traducir en el
   repositorio para que el ViewModel no dependa de Firebase.
 
+## Consulta 6
+- Fecha: 11/11/2026
+- Herramienta: Claude Code
+- Prompt: «La interfaz se ve muy simple. Mejórala, pero que siga siendo sencilla
+  de usar para el usuario.»
+- Qué respondió (resumen): explicó que «sencilla» significa fácil de usar, no
+  pobre, y que la rúbrica pide una «interfaz clara». Propuso usar siempre los
+  colores propios de la app (el tema tenía `dynamicColor = true` y tomaba los
+  colores del fondo de pantalla), tarjetas en el login y registro con opción de
+  mostrar la contraseña, rating y stock en las tarjetas, deslizar para
+  sincronizar, mensajes cortos (Snackbar) y una confirmación antes de limpiar
+  la caché.
+- Qué usamos / qué cambiamos y por qué: aceptamos todo en tres commits (tema,
+  login y registro, y catálogo/detalle/Admin). Las piezas repetidas quedaron
+  como componentes (`ComponentesAuth.kt` y `Etiquetas.kt`). El mensaje del
+  panel Admin sale del ViewModel; las pantallas solo lo muestran. Rechazamos
+  agregar la librería de íconos extendida solo para el ícono del «ojo»: se usó
+  un botón de texto «Mostrar / Ocultar».
+- Qué aprendimos: `PullToRefreshBox` da el gesto de deslizar con muy poco
+  código; en una columna con scroll `Arrangement.Center` no centra, hay que
+  envolverla en un `Box`; y una confirmación antes de borrar evita errores del
+  usuario.
+
 ---
 
 ## Resumen
@@ -98,4 +121,5 @@ se aceptó, qué se cambió o rechazó y qué se aprendió.
 | `android.disallowKotlinSourceSets=false` | Filtrar dentro del composable |
 | Repositorio y notificador falsos para las pruebas | Guardar el rol desde la app al registrarse |
 | Búsqueda con `StateFlow` + `combine` | — |
-| Registro solo en Firebase Authentication | — |
+| Registro solo en Firebase Authentication | Íconos extendidos solo para el «ojo» de la contraseña |
+| Tema propio, tarjetas, Snackbar y confirmación al limpiar | — |
