@@ -7,7 +7,10 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -103,18 +106,20 @@ private fun Catalogo(
         bottomBar = {
             // La barra solo se muestra en las pantallas principales.
             if (rutaActual == "lista" || rutaActual == "favoritos" || rutaActual == "admin") {
-                NavigationBar {
+                NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
                     NavigationBarItem(
                         selected = rutaActual == "lista",
                         onClick = { irA(navController, "lista") },
                         icon = { Icon(Icons.Default.Home, contentDescription = null) },
-                        label = { Text("Catálogo") }
+                        label = { Text("Catálogo") },
+                        colors = coloresItem()
                     )
                     NavigationBarItem(
                         selected = rutaActual == "favoritos",
                         onClick = { irA(navController, "favoritos") },
                         icon = { Icon(Icons.Default.Favorite, contentDescription = null) },
-                        label = { Text("Favoritos") }
+                        label = { Text("Favoritos") },
+                        colors = coloresItem()
                     )
                     // La pestaña Admin solo la ve el rol ADMIN.
                     if (esAdmin) {
@@ -122,7 +127,8 @@ private fun Catalogo(
                             selected = rutaActual == "admin",
                             onClick = { irA(navController, "admin") },
                             icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                            label = { Text("Admin") }
+                            label = { Text("Admin") },
+                        colors = coloresItem()
                         )
                     }
                 }
@@ -184,3 +190,13 @@ private fun irA(navController: NavHostController, ruta: String) {
         restoreState = true
     }
 }
+
+/** Colores de los botones de la barra inferior: el elegido en azul. */
+@Composable
+private fun coloresItem(): NavigationBarItemColors = NavigationBarItemDefaults.colors(
+    selectedIconColor = MaterialTheme.colorScheme.primary,
+    selectedTextColor = MaterialTheme.colorScheme.primary,
+    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+)

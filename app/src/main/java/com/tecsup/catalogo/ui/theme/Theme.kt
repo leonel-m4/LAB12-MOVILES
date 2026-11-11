@@ -17,9 +17,20 @@ private val EsquemaClaro = lightColorScheme(
     secondaryContainer = VerdeCatalogoClaro,
     tertiary = AmbarCatalogo,
     tertiaryContainer = AmbarCatalogoClaro,
+    // Fondo y superficies en blanco; los grises suaves separan las secciones.
     background = FondoClaro,
+    onBackground = TextoPrincipalClaro,
     surface = Color.White,
-    surfaceVariant = SuperficieVarianteClara
+    onSurface = TextoPrincipalClaro,
+    surfaceVariant = SuperficieVarianteClara,
+    onSurfaceVariant = GrisTextoSecundario,
+    surfaceContainerLowest = Color.White,
+    surfaceContainerLow = Color.White,
+    surfaceContainer = Color.White,
+    surfaceContainerHigh = GrisContenedorClaro,
+    surfaceContainerHighest = GrisContenedorClaro,
+    outline = GrisBordeClaro,
+    outlineVariant = GrisBordeClaro
 )
 
 private val EsquemaOscuro = darkColorScheme(
