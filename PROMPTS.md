@@ -66,6 +66,28 @@ se aceptó, qué se cambió o rechazó y qué se aprendió.
   búsqueda) en un solo `UiState`. Volvimos a correr las pruebas para confirmar
   que la búsqueda no cambió el comportamiento anterior.
 
+## Consulta 5
+- Fecha: 11/11/2026
+- Herramienta: Claude Code
+- Prompt: «Quiero agregar una pantalla de registro en la rama mejora-ia. ¿La
+  cuenta nueva aparecería en Firebase?»
+- Qué respondió (resumen): que `createUserWithEmailAndPassword` crea la cuenta
+  en Firebase Authentication, pero que el rol en Firestore no se crea solo.
+  Advirtió que las reglas que teníamos (`allow write` para el propio usuario)
+  permitían que alguien se pusiera `rol: "admin"` él mismo, y que la guía pide
+  `allow write: if false`.
+- Qué usamos / qué cambiamos y por qué: primero corregimos las reglas en `main`
+  dejando la escritura bloqueada, como dice la guía. Después agregamos
+  `registrar()` en `AuthRepository` y `FirebaseAuthRepository`, la pantalla
+  `RegistroScreen` y el enlace desde el login. El registro solo crea la cuenta
+  en Authentication y no escribe en Firestore: el usuario nuevo entra como
+  USUARIO y, si el docente quiere hacerlo admin, crea su documento en la
+  consola. Rechazamos guardar el rol desde la app.
+- Qué aprendimos: validar el rol en la app solo cambia lo que se muestra; lo que
+  protege de verdad son las reglas de Firestore. También que los errores de
+  Firebase (correo repetido, contraseña débil) se pueden traducir en el
+  repositorio para que el ViewModel no dependa de Firebase.
+
 ---
 
 ## Resumen
@@ -74,5 +96,6 @@ se aceptó, qué se cambió o rechazó y qué se aprendió.
 |---|---|
 | Orden de trabajo según el README | Subir la versión de KSP |
 | `android.disallowKotlinSourceSets=false` | Filtrar dentro del composable |
-| Repositorio y notificador falsos para las pruebas | — |
+| Repositorio y notificador falsos para las pruebas | Guardar el rol desde la app al registrarse |
 | Búsqueda con `StateFlow` + `combine` | — |
+| Registro solo en Firebase Authentication | — |

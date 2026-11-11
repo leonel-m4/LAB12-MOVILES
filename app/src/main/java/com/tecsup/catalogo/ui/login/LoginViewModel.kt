@@ -57,6 +57,35 @@ class LoginViewModel(
         }
     }
 
+    /** Valida los campos y, si están bien, crea la cuenta en Firebase. */
+    fun registrar(correo: String, clave: String, confirmar: String) {
+        val mensaje = validar(correo.trim(), clave)
+            ?: if (clave != confirmar) "Las contraseñas no coinciden." else null
+        if (mensaje != null) {
+            _estado.value = UiState.Error(mensaje)
+            return
+        }
+
+        viewModelScope.launch {
+            _estado.value = UiState.Cargando
+            repository.registrar(correo.trim(), clave)
+                .onSuccess { sesion ->
+                    _sesion.value = sesion
+                    _estado.value = UiState.Exito(Unit)
+                }
+                .onFailure { fallo ->
+                    _estado.value = UiState.Error(
+                        fallo.message ?: "No se pudo crear la cuenta."
+                    )
+                }
+        }
+    }
+
+    /** Borra el mensaje de error al cambiar entre login y registro. */
+    fun limpiarError() {
+        _estado.value = UiState.Exito(Unit)
+    }
+
     /** Cierra la sesión y vuelve al login. */
     fun cerrarSesion() {
         repository.cerrarSesion()

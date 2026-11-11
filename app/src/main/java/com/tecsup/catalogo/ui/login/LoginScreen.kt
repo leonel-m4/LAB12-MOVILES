@@ -14,6 +14,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,13 +31,14 @@ import com.tecsup.catalogo.ui.UiState
 /**
  * Pantalla de inicio de sesión con correo y contraseña.
  *
- * No tiene registro: los usuarios los crea el docente en Firebase.
+ * Tiene un enlace para ir a la pantalla de registro.
  */
 @Composable
 fun LoginScreen(
     estado: UiState<Unit>,
     onIngresar: (correo: String, clave: String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onIrARegistro: () -> Unit = {}
 ) {
     var correo by rememberSaveable { mutableStateOf("") }
     var clave by rememberSaveable { mutableStateOf("") }
@@ -106,6 +108,10 @@ fun LoginScreen(
             } else {
                 Text("Ingresar")
             }
+        }
+
+        TextButton(onClick = onIrARegistro, enabled = !cargando) {
+            Text("¿No tienes cuenta? Regístrate")
         }
     }
 }

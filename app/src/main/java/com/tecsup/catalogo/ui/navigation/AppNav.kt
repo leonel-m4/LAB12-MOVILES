@@ -13,7 +13,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -35,6 +38,7 @@ import com.tecsup.catalogo.ui.lista.ListaRoute
 import com.tecsup.catalogo.ui.login.LoginScreen
 import com.tecsup.catalogo.ui.login.LoginViewModel
 import com.tecsup.catalogo.ui.login.LoginViewModelFactory
+import com.tecsup.catalogo.ui.login.RegistroScreen
 
 /**
  * Navegación principal de la aplicación.
@@ -50,12 +54,32 @@ fun AppNav() {
     val sesion by loginViewModel.sesion.collectAsStateWithLifecycle()
     val estadoLogin by loginViewModel.estado.collectAsStateWithLifecycle()
 
+    // Indica si se muestra el registro en lugar del login.
+    var enRegistro by rememberSaveable { mutableStateOf(false) }
+
     if (sesion == null) {
-        LoginScreen(
-            estado = estadoLogin,
-            onIngresar = loginViewModel::iniciarSesion
-        )
+        if (enRegistro) {
+            RegistroScreen(
+                estado = estadoLogin,
+                onRegistrar = loginViewModel::registrar,
+                onVolverALogin = {
+                    loginViewModel.limpiarError()
+                    enRegistro = false
+                }
+            )
+        } else {
+            LoginScreen(
+                estado = estadoLogin,
+                onIngresar = loginViewModel::iniciarSesion,
+                onIrARegistro = {
+                    loginViewModel.limpiarError()
+                    enRegistro = true
+                }
+            )
+        }
     } else {
+        // Al entrar, la próxima vez que se cierre sesión se vuelve al login.
+        LaunchedEffect(Unit) { enRegistro = false }
         Catalogo(
             esAdmin = sesion?.rol == Rol.ADMIN,
             onCerrarSesion = loginViewModel::cerrarSesion
