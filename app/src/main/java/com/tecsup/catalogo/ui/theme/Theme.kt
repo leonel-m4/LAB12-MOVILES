@@ -1,50 +1,51 @@
 package com.tecsup.catalogo.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 
 private val EsquemaClaro = lightColorScheme(
     primary = AzulCatalogo,
+    onPrimary = Color.White,
     primaryContainer = AzulCatalogoClaro,
+    onPrimaryContainer = AzulCatalogoTextoClaro,
     secondary = VerdeCatalogo,
+    onSecondary = Color.White,
+    secondaryContainer = VerdeCatalogoClaro,
+    tertiary = AmbarCatalogo,
+    tertiaryContainer = AmbarCatalogoClaro,
     background = FondoClaro,
-    surface = Color.White
+    surface = Color.White,
+    surfaceVariant = SuperficieVarianteClara
 )
 
 private val EsquemaOscuro = darkColorScheme(
     primary = AzulCatalogoOscuro,
     primaryContainer = AzulCatalogoContenedorOscuro,
     secondary = VerdeCatalogoOscuro,
+    secondaryContainer = VerdeCatalogoContenedorOscuro,
+    tertiary = AmbarCatalogoOscuro,
     background = FondoOscuro,
-    surface = SuperficieOscura
+    surface = SuperficieOscura,
+    surfaceVariant = SuperficieVarianteOscura
 )
 
+/**
+ * Tema de CatalogoApp.
+ *
+ * Usa siempre los colores propios de la app (no los colores del fondo de
+ * pantalla del celular), así se ve igual en todos los dispositivos.
+ */
 @Composable
 fun CatalogoAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> EsquemaOscuro
-        else -> EsquemaClaro
-    }
-
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = if (darkTheme) EsquemaOscuro else EsquemaClaro,
         typography = Typography,
         content = content
     )
