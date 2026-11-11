@@ -279,8 +279,7 @@ private fun TarjetaCaracteristicas(producto: Producto) {
             FilaCaracteristica("Garantía", producto.garantia)
             FilaCaracteristica("Envío", producto.envio)
             FilaCaracteristica("Devolución", producto.devolucion)
-            FilaCaracteristica("Pedido mínimo", "${producto.pedidoMinimo} unidades")
-            FilaCaracteristica("Peso", numero(producto.peso))
+            FilaCaracteristica("Peso", if (producto.peso > 0) "${numero(producto.peso)} g" else "")
             FilaCaracteristica(
                 "Medidas (ancho × alto × grosor)",
                 "${numero(producto.ancho)} × ${numero(producto.alto)} × ${numero(producto.grosor)}"

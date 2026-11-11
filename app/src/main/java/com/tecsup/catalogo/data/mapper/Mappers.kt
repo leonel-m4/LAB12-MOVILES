@@ -55,11 +55,13 @@ fun ProductoEntity.toModelo(): Producto = Producto(
     favorito = favorito,
     descuento = descuento,
     sku = sku,
-    peso = peso,
+    // Peso real del modelo (la API manda un valor de prueba sin unidad).
+    peso = pesoEnGramos(id),
     ancho = ancho,
     alto = alto,
     grosor = grosor,
-    garantia = traducirGarantia(garantia),
+    // Garantía de tienda: 1 año del fabricante.
+    garantia = GARANTIA_TIENDA,
     envio = traducirEnvio(envio),
     disponibilidad = disponibilidad,
     devolucion = traducirDevolucion(devolucion),

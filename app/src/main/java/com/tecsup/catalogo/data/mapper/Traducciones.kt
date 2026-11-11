@@ -30,19 +30,6 @@ private val descripcionesEs = mapOf(
 fun descripcionEnEspanol(id: Int, original: String): String =
     descripcionesEs[id] ?: original
 
-/** Traduce el texto de garantía que manda la API. */
-fun traducirGarantia(texto: String): String = when (texto) {
-    "No warranty" -> "Sin garantía"
-    "1 month warranty" -> "1 mes"
-    "3 months warranty" -> "3 meses"
-    "6 months warranty" -> "6 meses"
-    "1 year warranty" -> "1 año"
-    "2 year warranty" -> "2 años"
-    "3 year warranty" -> "3 años"
-    "Lifetime warranty" -> "De por vida"
-    else -> texto
-}
-
 /** Traduce el texto de envío que manda la API. */
 fun traducirEnvio(texto: String): String = when (texto) {
     "Ships overnight" -> "Al día siguiente"

@@ -171,6 +171,24 @@ se aceptó, qué se cambió o rechazó y qué se aprendió.
 - Qué aprendimos: no repetir el mismo dato en dos lugares de la pantalla, y que
   traducir en el mapper mantiene a las pantallas sin lógica.
 
+## Consulta 10
+- Fecha: 11/11/2026
+- Herramienta: Claude Code
+- Prompt: «Agrega un filtro por marca. La garantía "de por vida" no tiene sentido,
+  pon 1 año; quita el pedido mínimo y pon un peso realista, inspirándote en
+  Movistar, Entel y Claro.»
+- Qué respondió (resumen): agregó el filtro por marca en el ViewModel (las
+  marcas salen de Room) con chips en la lista. Explicó que DummyJSON es una
+  API de prueba y algunos valores no son reales (la garantía es al azar y el
+  peso viene como «5» sin unidad), y propuso mostrarlos como en una tienda.
+- Qué usamos / qué cambiamos y por qué: la garantía se muestra como «1 año»
+  (garantía del fabricante, como en las tiendas) y el peso se toma de una tabla
+  con el peso real de cada modelo en gramos (`DatosTienda.kt`, en la capa de
+  datos). Quitamos «Pedido mínimo» porque una persona compra un solo celular.
+  Room sigue guardando lo que manda la API; el cambio se hace en el mapper.
+- Qué aprendimos: una API de prueba sirve para practicar, pero hay que revisar
+  si sus datos tienen sentido para el usuario antes de mostrarlos.
+
 ---
 
 ## Resumen
