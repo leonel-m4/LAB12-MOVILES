@@ -167,7 +167,9 @@ private fun Catalogo(
                 val id = backStackEntry.arguments?.getInt("id") ?: 0
                 DetalleRoute(
                     id = id,
-                    onVolver = { navController.popBackStack() }
+                    onVolver = { navController.popBackStack() },
+                    // Al tocar otro smartphone se abre su detalle.
+                    onOtroClick = { otroId -> navController.navigate("detalle/$otroId") }
                 )
             }
         }

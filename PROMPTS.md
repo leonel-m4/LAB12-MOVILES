@@ -111,6 +111,26 @@ se aceptó, qué se cambió o rechazó y qué se aprendió.
   envolverla en un `Box`; y una confirmación antes de borrar evita errores del
   usuario.
 
+## Consulta 7
+- Fecha: 11/11/2026
+- Herramienta: Claude Code
+- Prompt: «Al entrar a un celular deben salir sus características (procesador,
+  RAM, etc.) y abajo los demás celulares.»
+- Qué respondió (resumen): revisó la respuesta real de DummyJSON y avisó que
+  la API **no trae** procesador, RAM ni almacenamiento; sí trae peso, medidas,
+  garantía, envío, disponibilidad, devolución, descuento, SKU y pedido mínimo.
+  Recomendó mostrar solo los datos reales y no escribir a mano procesador y RAM.
+- Qué usamos / qué cambiamos y por qué: elegimos los datos reales de la API.
+  Se agregaron los campos al DTO, a `ProductoEntity` y a `Producto`, y la base
+  de datos pasó a la versión 2 (como Room solo guarda una copia de la API, se
+  usa `fallbackToDestructiveMigration` y se vuelve a descargar). En el detalle
+  se agregó la tarjeta «Características» y una fila «Otros smartphones» que
+  sale de Room y abre el detalle de otro celular al tocarlo. Rechazamos
+  inventar procesador y RAM porque no vendrían de la API.
+- Qué aprendimos: antes de crear un DTO hay que abrir la URL de la API y ver
+  qué campos trae de verdad (lo dice también la guía). Además, si cambia la
+  tabla de Room hay que subir la versión de la base de datos.
+
 ---
 
 ## Resumen
@@ -122,4 +142,5 @@ se aceptó, qué se cambió o rechazó y qué se aprendió.
 | Repositorio y notificador falsos para las pruebas | Guardar el rol desde la app al registrarse |
 | Búsqueda con `StateFlow` + `combine` | — |
 | Registro solo en Firebase Authentication | Íconos extendidos solo para el «ojo» de la contraseña |
-| Tema propio, tarjetas, Snackbar y confirmación al limpiar | — |
+| Tema propio, tarjetas, Snackbar y confirmación al limpiar | Inventar procesador y RAM que la API no trae |
+| Características reales de la API y «Otros smartphones» | — |

@@ -1,6 +1,7 @@
 package com.tecsup.catalogo.ui.detalle
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -33,10 +36,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -59,7 +64,8 @@ import java.util.Locale
 @Composable
 fun DetalleRoute(
     id: Int,
-    onVolver: () -> Unit
+    onVolver: () -> Unit,
+    onOtroClick: (Int) -> Unit = {}
 ) {
     val app = LocalContext.current.applicationContext as CatalogoApp
     val factory = remember(app, id) {
@@ -67,11 +73,14 @@ fun DetalleRoute(
     }
     val viewModel: DetalleViewModel = viewModel(factory = factory)
     val estado by viewModel.estado.collectAsStateWithLifecycle()
+    val otros by viewModel.otros.collectAsStateWithLifecycle()
     DetalleScreen(
         estado = estado,
+        otros = otros,
         onVolver = onVolver,
         onFavoritoClick = viewModel::alternarFavorito,
-        onReintentar = viewModel::cargarDetalle
+        onReintentar = viewModel::cargarDetalle,
+        onOtroClick = onOtroClick
     )
 }
 
@@ -85,7 +94,9 @@ fun DetalleScreen(
     onVolver: () -> Unit,
     onFavoritoClick: () -> Unit,
     onReintentar: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    otros: List<Producto> = emptyList(),
+    onOtroClick: (Int) -> Unit = {}
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -226,6 +237,21 @@ fun DetalleScreen(
                                 Text("Agregar a favoritos")
                             }
                         }
+
+                        // Los demás smartphones, para seguir viendo sin volver a la lista.
+                        if (otros.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Text(
+                                text = "Otros smartphones",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                items(items = otros, key = { it.id }) { otro ->
+                                    TarjetaOtro(otro, onClick = { onOtroClick(otro.id) })
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -304,3 +330,40 @@ private fun traducirDisponibilidad(texto: String): String = when (texto) {
 private fun numero(valor: Double): String =
     if (valor % 1.0 == 0.0) valor.toInt().toString()
     else String.format(Locale.US, "%.2f", valor)
+
+/** Tarjeta pequeña de otro smartphone: imagen, nombre y precio. */
+@Composable
+private fun TarjetaOtro(producto: Producto, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.width(150.dp)
+    ) {
+        Column(modifier = Modifier.padding(10.dp)) {
+            AsyncImage(
+                model = producto.imagen,
+                contentDescription = producto.nombre,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentScale = ContentScale.Fit
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = producto.nombre,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = formatoPrecio(producto.precio),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
