@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -70,11 +72,16 @@ fun ListaRoute(
     val aviso by viewModel.aviso.collectAsStateWithLifecycle()
     val busqueda by viewModel.busqueda.collectAsStateWithLifecycle()
     val sincronizando by viewModel.sincronizando.collectAsStateWithLifecycle()
+    val marcas by viewModel.marcas.collectAsStateWithLifecycle()
+    val marca by viewModel.marca.collectAsStateWithLifecycle()
     ListaScreen(
         estado = estado,
         aviso = aviso,
         busqueda = busqueda,
         sincronizando = sincronizando,
+        marcas = marcas,
+        marcaElegida = marca,
+        onMarcaClick = viewModel::filtrarMarca,
         onBuscar = viewModel::buscar,
         onProductoClick = onProductoClick,
         onFavoritoClick = { producto -> viewModel.alternarFavorito(producto.id) },
@@ -101,7 +108,10 @@ fun ListaScreen(
     onCerrarSesion: () -> Unit = {},
     busqueda: String = "",
     onBuscar: (String) -> Unit = {},
-    sincronizando: Boolean = false
+    sincronizando: Boolean = false,
+    marcas: List<String> = emptyList(),
+    marcaElegida: String? = null,
+    onMarcaClick: (String?) -> Unit = {}
 ) {
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -198,6 +208,30 @@ fun ListaScreen(
                             .padding(start = 16.dp, end = 16.dp, top = 12.dp)
                     )
 
+                    // Filtro por marca: "Todas" y una opción por cada marca.
+                    if (marcas.isNotEmpty()) {
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            item {
+                                FilterChip(
+                                    selected = marcaElegida == null,
+                                    onClick = { onMarcaClick(null) },
+                                    label = { Text("Todas") }
+                                )
+                            }
+                            items(marcas) { marca ->
+                                FilterChip(
+                                    selected = marcaElegida == marca,
+                                    onClick = { onMarcaClick(marca) },
+                                    label = { Text(marca) }
+                                )
+                            }
+                        }
+                    }
+
                     // Deslizar hacia abajo vuelve a sincronizar con la API.
                     PullToRefreshBox(
                         isRefreshing = sincronizando,
@@ -206,10 +240,10 @@ fun ListaScreen(
                     ) {
                         if (estado.datos.isEmpty()) {
                             EstadoVacioView(
-                                mensaje = if (busqueda.isBlank()) {
+                                mensaje = if (busqueda.isBlank() && marcaElegida == null) {
                                     "No hay productos disponibles por ahora.\nDesliza hacia abajo para sincronizar."
                                 } else {
-                                    "No hay smartphones que coincidan con \"$busqueda\"."
+                                    "No hay smartphones que coincidan con tu búsqueda."
                                 }
                             )
                         } else {

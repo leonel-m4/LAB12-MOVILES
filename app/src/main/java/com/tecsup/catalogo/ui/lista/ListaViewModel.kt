@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -37,15 +38,32 @@ class ListaViewModel(
     private val _busqueda = MutableStateFlow("")
     val busqueda: StateFlow<String> = _busqueda.asStateFlow()
 
+    // Marca elegida en el filtro (null = todas las marcas).
+    private val _marca = MutableStateFlow<String?>(null)
+    val marca: StateFlow<String?> = _marca.asStateFlow()
+
+    /** Marcas que hay en Room, sin repetir y en orden alfabético. */
+    val marcas: StateFlow<List<String>> =
+        repository.items
+            .map { lista -> lista.map { it.marca }.filter { it.isNotBlank() }.distinct().sorted() }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyList()
+            )
+
     val estado: StateFlow<UiState<List<Producto>>> =
-        combine(repository.items, _cargando, _error, _busqueda) { productos, cargando, error, texto ->
+        combine(repository.items, _cargando, _error, _busqueda, _marca) { productos, cargando, error, texto, marca ->
             when {
                 // Si Room ya tiene datos, se muestran sin esperar a la API.
                 cargando && productos.isEmpty() -> UiState.Cargando
                 error != null && productos.isEmpty() -> UiState.Error(error)
-                // Se filtra por nombre sin importar mayúsculas o minúsculas.
+                // Se filtra por nombre (sin importar mayúsculas) y por marca.
                 else -> UiState.Exito(
-                    productos.filter { it.nombre.contains(texto.trim(), ignoreCase = true) }
+                    productos.filter { producto ->
+                        producto.nombre.contains(texto.trim(), ignoreCase = true) &&
+                            (marca == null || producto.marca == marca)
+                    }
                 )
             }
         }.stateIn(
@@ -84,6 +102,11 @@ class ListaViewModel(
     /** Actualiza el texto con el que se filtra la lista por nombre. */
     fun buscar(texto: String) {
         _busqueda.value = texto
+    }
+
+    /** Elige la marca del filtro; null muestra todas. */
+    fun filtrarMarca(marca: String?) {
+        _marca.value = marca
     }
 
     /** Invierte el estado de favorito del producto indicado. */
