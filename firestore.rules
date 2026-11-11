@@ -2,10 +2,12 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Cada usuario solo puede leer y escribir su propio documento de rol.
+    // Cada usuario solo puede leer su propio documento de rol.
+    // Nadie puede escribirlo desde la app: el rol lo asigna el docente
+    // en la consola, así un usuario no puede darse permisos de admin.
     match /usuarios/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
     }
   }
 }
