@@ -16,6 +16,8 @@ data class ProductoEntity(
     val categoria: String,
     val stock: Int,
     val imagen: String,
+    // Fotos grandes separadas por "|" (Room no guarda listas directamente)
+    val imagenes: String = "",
     val rating: Double,
     val favorito: Boolean = false,
     // Características (se agregaron en la versión 2 de la base de datos)

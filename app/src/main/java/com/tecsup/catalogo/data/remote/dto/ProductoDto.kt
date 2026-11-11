@@ -21,6 +21,7 @@ data class ProductoDto(
     val stock: Int,
     val rating: Double,
     val thumbnail: String,
+    val images: List<String> = emptyList(), // fotos grandes del producto
     // Características que trae la API
     val discountPercentage: Double = 0.0,
     val sku: String = "",

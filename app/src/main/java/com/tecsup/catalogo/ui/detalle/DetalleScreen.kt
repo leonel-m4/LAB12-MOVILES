@@ -2,6 +2,7 @@ package com.tecsup.catalogo.ui.detalle
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,10 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -136,16 +141,10 @@ fun DetalleScreen(
                         .padding(paddingValues)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    // Imagen grande sobre un fondo suave.
-                    AsyncImage(
-                        model = producto.imagen,
-                        contentDescription = producto.nombre,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(280.dp)
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .padding(16.dp),
-                        contentScale = ContentScale.Fit
+                    // Carrusel con las fotos grandes de la API.
+                    CarruselFotos(
+                        fotos = producto.imagenes.ifEmpty { listOf(producto.imagen) },
+                        nombre = producto.nombre
                     )
 
                     Column(modifier = Modifier.padding(16.dp)) {
@@ -364,6 +363,55 @@ private fun TarjetaOtro(producto: Producto, onClick: () -> Unit) {
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
+        }
+    }
+}
+
+/**
+ * Carrusel para deslizar entre las fotos grandes del producto.
+ * Los puntos de abajo indican en qué foto se está.
+ */
+@Composable
+private fun CarruselFotos(fotos: List<String>, nombre: String) {
+    val pagina = rememberPagerState(pageCount = { fotos.size })
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        HorizontalPager(state = pagina, modifier = Modifier.fillMaxSize()) { indice ->
+            AsyncImage(
+                model = fotos[indice],
+                contentDescription = "$nombre, foto ${indice + 1}",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 28.dp),
+                contentScale = ContentScale.Fit
+            )
+        }
+
+        // Puntos indicadores (solo si hay más de una foto).
+        if (fotos.size > 1) {
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                repeat(fotos.size) { i ->
+                    Box(
+                        modifier = Modifier
+                            .size(if (i == pagina.currentPage) 10.dp else 8.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (i == pagina.currentPage) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.outlineVariant
+                            )
+                    )
+                }
+            }
         }
     }
 }

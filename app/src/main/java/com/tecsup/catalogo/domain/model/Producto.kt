@@ -14,7 +14,8 @@ data class Producto(
     val marca: String,
     val categoria: String,
     val stock: Int,
-    val imagen: String,
+    val imagen: String, // miniatura para la lista
+    val imagenes: List<String> = emptyList(), // fotos grandes para el detalle
     val rating: Double,
     val favorito: Boolean = false,
     // Características que vienen de la API

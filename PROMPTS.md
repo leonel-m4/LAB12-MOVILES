@@ -131,6 +131,27 @@ se aceptó, qué se cambió o rechazó y qué se aprendió.
   qué campos trae de verdad (lo dice también la guía). Además, si cambia la
   tabla de Room hay que subir la versión de la base de datos.
 
+## Consulta 8
+- Fecha: 11/11/2026
+- Herramienta: Claude Code
+- Prompt: «Pon el fondo blanco, adapta los colores y reemplaza las imágenes por
+  las de Movistar, Claro y Entel, que son mejores.»
+- Qué respondió (resumen): cambió el fondo a blanco y ajustó los colores. Sobre
+  las imágenes, explicó que esas tiendas no venden los 16 modelos de la API
+  (son antiguos), que sus fotos tienen derechos de autor y nuestro repositorio
+  es público, y que poner URLs a mano rompe la idea de que los datos salen de
+  la API. Propuso usar el campo `images` de DummyJSON, que trae 3 fotos más
+  grandes de cada celular.
+- Qué usamos / qué cambiamos y por qué: usamos el fondo blanco con bordes
+  suaves en las tarjetas y grises claros para separar secciones. Para las
+  imágenes, guardamos `images` en Room (como texto separado por «|», porque
+  Room no guarda listas sin un convertidor) y en el detalle pusimos un
+  carrusel (`HorizontalPager`) con puntos indicadores. Rechazamos copiar
+  imágenes de otras tiendas.
+- Qué aprendimos: hay que revisar todo lo que trae la API antes de buscar
+  datos afuera; y que usar imágenes de otras empresas en un repositorio
+  público tiene problemas de derechos de autor.
+
 ---
 
 ## Resumen
@@ -143,4 +164,5 @@ se aceptó, qué se cambió o rechazó y qué se aprendió.
 | Búsqueda con `StateFlow` + `combine` | — |
 | Registro solo en Firebase Authentication | Íconos extendidos solo para el «ojo» de la contraseña |
 | Tema propio, tarjetas, Snackbar y confirmación al limpiar | Inventar procesador y RAM que la API no trae |
-| Características reales de la API y «Otros smartphones» | — |
+| Características reales de la API y «Otros smartphones» | Copiar imágenes de Movistar, Claro y Entel |
+| Fondo blanco y carrusel con las fotos grandes de la API | — |

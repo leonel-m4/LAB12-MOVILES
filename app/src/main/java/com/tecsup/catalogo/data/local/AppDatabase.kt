@@ -12,7 +12,7 @@ import androidx.room.RoomDatabase
  */
 @Database(
     entities = [ProductoEntity::class],
-    version = 2, // 2: se agregaron las columnas de características
+    version = 3, // 2: columnas de características · 3: fotos grandes
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
