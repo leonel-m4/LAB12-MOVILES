@@ -20,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,6 +51,7 @@ import com.tecsup.catalogo.ui.components.EtiquetaStock
 import com.tecsup.catalogo.ui.components.Rating
 import com.tecsup.catalogo.ui.components.coloresBarra
 import com.tecsup.catalogo.ui.components.formatoPrecio
+import java.util.Locale
 
 /**
  * Conecta el ViewModel de detalle con la pantalla y recoge su estado.
@@ -184,6 +188,9 @@ fun DetalleScreen(
                             }
                         }
 
+                        Spacer(modifier = Modifier.height(12.dp))
+                        TarjetaCaracteristicas(producto)
+
                         Spacer(modifier = Modifier.height(24.dp))
                         // Botón lleno para agregar; con borde si ya es favorito.
                         if (producto.favorito) {
@@ -225,3 +232,75 @@ fun DetalleScreen(
         }
     }
 }
+
+/**
+ * Tarjeta con las características del producto que trae la API
+ * (segundo endpoint): disponibilidad, garantía, envío, medidas, etc.
+ */
+@Composable
+private fun TarjetaCaracteristicas(producto: Producto) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Características",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            FilaCaracteristica("Disponibilidad", traducirDisponibilidad(producto.disponibilidad))
+            FilaCaracteristica("Descuento", "${numero(producto.descuento)} %")
+            FilaCaracteristica("Garantía", producto.garantia)
+            FilaCaracteristica("Envío", producto.envio)
+            FilaCaracteristica("Devolución", producto.devolucion)
+            FilaCaracteristica("Pedido mínimo", "${producto.pedidoMinimo} unidades")
+            FilaCaracteristica("Peso", numero(producto.peso))
+            FilaCaracteristica(
+                "Medidas (ancho × alto × grosor)",
+                "${numero(producto.ancho)} × ${numero(producto.alto)} × ${numero(producto.grosor)}"
+            )
+            FilaCaracteristica("SKU", producto.sku, ultima = true)
+        }
+    }
+}
+
+/** Una fila "nombre ........ valor" con una línea divisoria debajo. */
+@Composable
+private fun FilaCaracteristica(etiqueta: String, valor: String, ultima: Boolean = false) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = etiqueta,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = valor.ifBlank { "No indicado" },
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.End,
+            modifier = Modifier.weight(1f)
+        )
+    }
+    if (!ultima) HorizontalDivider()
+}
+
+/** La API manda la disponibilidad en inglés; se muestra en español. */
+private fun traducirDisponibilidad(texto: String): String = when (texto) {
+    "In Stock" -> "En stock"
+    "Low Stock" -> "Pocas unidades"
+    "Out of Stock" -> "Agotado"
+    else -> texto
+}
+
+/** Muestra un número sin decimales de sobra: 2.0 -> "2", 5.29 -> "5.29". */
+private fun numero(valor: Double): String =
+    if (valor % 1.0 == 0.0) valor.toInt().toString()
+    else String.format(Locale.US, "%.2f", valor)

@@ -12,7 +12,7 @@ import androidx.room.RoomDatabase
  */
 @Database(
     entities = [ProductoEntity::class],
-    version = 1,
+    version = 2, // 2: se agregaron las columnas de características
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -27,7 +27,11 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "catalogo.db"
-                ).build().also { instancia = it }
+                )
+                    // Room solo guarda una copia de la API: si cambia la versión,
+                    // se borra la tabla y se vuelve a descargar al sincronizar.
+                    .fallbackToDestructiveMigration(true)
+                    .build().also { instancia = it }
             }
     }
 }

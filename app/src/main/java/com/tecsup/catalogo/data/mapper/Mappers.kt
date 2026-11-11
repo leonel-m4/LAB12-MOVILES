@@ -7,17 +7,7 @@ import com.tecsup.catalogo.domain.model.Producto
 /**
  * Convierte la respuesta de la API en el modelo que usan las pantallas.
  */
-fun ProductoDto.toProducto(): Producto = Producto(
-    id = id,
-    nombre = title,
-    descripcion = description,
-    precio = price,
-    marca = brand.orEmpty(),
-    categoria = category,
-    stock = stock,
-    imagen = thumbnail,
-    rating = rating
-)
+fun ProductoDto.toProducto(): Producto = toEntity().toModelo()
 
 /**
  * Convierte la respuesta de la API en la fila que se guarda en Room.
@@ -32,7 +22,18 @@ fun ProductoDto.toEntity(favorito: Boolean = false): ProductoEntity = ProductoEn
     stock = stock,
     imagen = thumbnail,
     rating = rating,
-    favorito = favorito
+    favorito = favorito,
+    descuento = discountPercentage,
+    sku = sku,
+    peso = weight,
+    ancho = dimensions?.width ?: 0.0,
+    alto = dimensions?.height ?: 0.0,
+    grosor = dimensions?.depth ?: 0.0,
+    garantia = warrantyInformation,
+    envio = shippingInformation,
+    disponibilidad = availabilityStatus,
+    devolucion = returnPolicy,
+    pedidoMinimo = minimumOrderQuantity
 )
 
 /**
@@ -48,5 +49,16 @@ fun ProductoEntity.toModelo(): Producto = Producto(
     stock = stock,
     imagen = imagen,
     rating = rating,
-    favorito = favorito
+    favorito = favorito,
+    descuento = descuento,
+    sku = sku,
+    peso = peso,
+    ancho = ancho,
+    alto = alto,
+    grosor = grosor,
+    garantia = garantia,
+    envio = envio,
+    disponibilidad = disponibilidad,
+    devolucion = devolucion,
+    pedidoMinimo = pedidoMinimo
 )

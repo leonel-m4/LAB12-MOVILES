@@ -16,5 +16,17 @@ data class Producto(
     val stock: Int,
     val imagen: String,
     val rating: Double,
-    val favorito: Boolean = false
+    val favorito: Boolean = false,
+    // Características que vienen de la API
+    val descuento: Double = 0.0,
+    val sku: String = "",
+    val peso: Double = 0.0,
+    val ancho: Double = 0.0,
+    val alto: Double = 0.0,
+    val grosor: Double = 0.0,
+    val garantia: String = "",
+    val envio: String = "",
+    val disponibilidad: String = "",
+    val devolucion: String = "",
+    val pedidoMinimo: Int = 1
 )
